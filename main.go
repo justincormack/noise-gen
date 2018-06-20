@@ -42,13 +42,12 @@ func main() {
 		}
 	}
 	fmt.Printf("\n")
-	// then standard plus deferred
+	// then deferred patterns
 	for _, i := range symbols {
 		for _, r := range symbols {
 			if i == "N" && r == "N" {
 				continue
 			}
-			makePattern(i, r, false, false)
 			if i != "N" {
 				makePattern(i, r, true, false)
 			}
@@ -59,7 +58,6 @@ func main() {
 				makePattern(i, r, true, true)
 			}
 			if i == "X" {
-				makePattern("I", r, false, false)
 				makePattern("I", r, true, false)
 				if r != "N" {
 					makePattern("I", r, false, true)
