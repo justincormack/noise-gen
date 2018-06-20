@@ -62,6 +62,7 @@ func main() {
 				makePattern("I", r, false, false)
 				makePattern("I", r, true, false)
 				if r != "N" {
+					makePattern("I", r, false, true)
 					makePattern("I", r, true, true)
 				}
 			}
