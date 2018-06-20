@@ -4,18 +4,13 @@ import (
 	"fmt"
 )
 
-type done struct {
-	// what have we done
-	e bool
-	s bool
-}
-
 type half struct {
 	// config
 	symbol string
 	def    bool
-	// state
-	d done
+	// public keys sent
+	e bool
+	s bool
 }
 
 type pattern struct {
@@ -82,11 +77,11 @@ func makeInit(i, r string) pattern {
 	}
 	// pre-message
 	if i == "K" {
-		p.i.d.s = true
+		p.i.s = true
 		fmt.Printf("  -> s\n")
 	}
 	if r == "K" {
-		p.r.d.s = true
+		p.r.s = true
 		fmt.Printf("  <- s\n")
 	}
 	if i == "K" || r == "K" {
@@ -133,84 +128,84 @@ func makePattern(i, r string, id, rd bool) {
 			case true: // initiator writes
 				switch {
 				// send e if not sent
-				case !p.i.d.e:
+				case !p.i.e:
 					first = pr(first, initWrite, "e")
-					p.i.d.e = true
+					p.i.e = true
 					didSomething = true
 				// do ee as soon as possible
-				case p.i.d.e && p.r.d.e && !p.ee:
+				case p.i.e && p.r.e && !p.ee:
 					first = pr(first, initWrite, "ee")
 					p.ee = true
 					didSomething = true
 				// do se as soon as possible if not deferred
-				case p.i.d.s && p.r.d.e && !p.se && !id:
+				case p.i.s && p.r.e && !p.se && !id:
 					first = pr(first, initWrite, "se")
 					p.se = true
 					didSomething = true
 				// do es as soon as possible if not deferred
-				case p.i.d.e && p.r.d.s && !p.es && !rd:
+				case p.i.e && p.r.s && !p.es && !rd:
 					first = pr(first, initWrite, "es")
 					p.es = true
 					didSomething = true
 				// do ss as soon as possible
-				case p.i.d.s && p.r.d.s && !p.ss:
+				case p.i.s && p.r.s && !p.ss:
 					first = pr(first, initWrite, "ss")
 					p.ss = true
 					didSomething = true
 				// send s if I as soon as possible
-				case i == "I" && !p.i.d.s:
+				case i == "I" && !p.i.s:
 					first = pr(first, initWrite, "s")
-					p.i.d.s = true
+					p.i.s = true
 					didSomething = true
-				case i == "X" && !p.i.d.s && line == 1:
+				case i == "X" && !p.i.s && line == 1:
 					first = pr(first, initWrite, "s")
-					p.i.d.s = true
+					p.i.s = true
 					didSomething = true
 				}
 				// handle deferral
-				if p.i.d.s && p.r.d.e && !p.se && id {
+				if p.i.s && p.r.e && !p.se && id {
 					clearID = true
 				}
-				if p.i.d.e && p.r.d.s && !p.es && rd {
+				if p.i.e && p.r.s && !p.es && rd {
 					clearRD = true
 				}
 			case false: // recipient writes
 				switch {
 				// send e if not sent
-				case !p.r.d.e:
+				case !p.r.e:
 					first = pr(first, initWrite, "e")
-					p.r.d.e = true
+					p.r.e = true
 					didSomething = true
 				// do ee as soon as possible
-				case p.i.d.e && p.r.d.e && !p.ee:
+				case p.i.e && p.r.e && !p.ee:
 					first = pr(first, initWrite, "ee")
 					p.ee = true
 					didSomething = true
 				// do se as soon as possible if not deferred
-				case p.r.d.e && p.i.d.s && !p.se && !id:
+				case p.r.e && p.i.s && !p.se && !id:
 					first = pr(first, initWrite, "se")
 					p.se = true
 					didSomething = true
 				// do es as soon as possible if not deferred
-				case p.r.d.s && p.i.d.e && !p.es && !rd:
+				case p.r.s && p.i.e && !p.es && !rd:
 					first = pr(first, initWrite, "es")
 					p.es = true
 					didSomething = true
 				// do ss as soon as possible
-				case p.i.d.s && p.r.d.s && !p.ss:
+				case p.i.s && p.r.s && !p.ss:
 					first = pr(first, initWrite, "ss")
 					p.ss = true
 					didSomething = true
-				case r == "X" && !p.r.d.s:
+				case r == "X" && !p.r.s:
 					first = pr(first, initWrite, "s")
-					p.r.d.s = true
+					p.r.s = true
 					didSomething = true
 				}
 				// handle deferral
-				if p.r.d.s && p.i.d.e && !p.es && rd {
+				if p.r.s && p.i.e && !p.es && rd {
 					clearRD = true
 				}
-				if p.r.d.e && p.i.d.s && !p.se && id {
+				if p.r.e && p.i.s && !p.se && id {
 					clearID = true
 				}
 			}
