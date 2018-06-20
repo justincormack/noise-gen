@@ -129,8 +129,8 @@ func makePattern(i, r string, id, rd bool) {
 					first = pr(first, initWrite, "es")
 					p.es = true
 					didSomething = true
-				// do ss as soon as possible
-				case p.i.s && p.r.s && !p.ss:
+				// do ss as soon as possible, if not done ee or se but have done se
+				case p.i.s && p.r.s && !p.ss && !p.se && !p.ee && p.es:
 					first = pr(first, initWrite, "ss")
 					p.ss = true
 					didSomething = true
@@ -174,8 +174,8 @@ func makePattern(i, r string, id, rd bool) {
 					first = pr(first, initWrite, "es")
 					p.es = true
 					didSomething = true
-				// do ss as soon as possible
-				case p.i.s && p.r.s && !p.ss:
+				// do ss as soon as possible if not done ee or es but have done se
+				case p.i.s && p.r.s && !p.ss && !p.es && !p.ee && p.se:
 					first = pr(first, initWrite, "ss")
 					p.ss = true
 					didSomething = true
