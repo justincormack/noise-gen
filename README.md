@@ -12,4 +12,4 @@ To run
 ```
 go get github.com/justincormack/noise-gen
 ```
-Then the `noise-gen` should be in `~/go/bin`.
+Then the `noise-gen` binary should be in `~/go/bin`; run it to generate the patterns.
