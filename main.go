@@ -84,9 +84,14 @@ func makeInit(i, r string) pattern {
 	// pre-message
 	if i == "K" {
 		p.i.d.s = true
+		fmt.Printf("  -> s\n")
 	}
 	if r == "K" {
 		p.r.d.s = true
+		fmt.Printf("  <- s\n")
+	}
+	if i == "K" || r == "K" {
+		fmt.Printf("  ...\n")
 	}
 	return p
 }
@@ -95,9 +100,9 @@ func pr(first, initWrite bool, s string) bool {
 	if first {
 		switch initWrite {
 		case true:
-			fmt.Printf("-> ")
+			fmt.Printf("  -> ")
 		case false:
-			fmt.Printf("<- ")
+			fmt.Printf("  <- ")
 		}
 	} else {
 		fmt.Printf(", ")
