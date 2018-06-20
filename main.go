@@ -5,9 +5,6 @@ import (
 )
 
 type half struct {
-	// config
-	symbol string
-	def    bool
 	// public keys sent
 	e bool
 	s bool
@@ -63,33 +60,6 @@ func main() {
 	}
 }
 
-func makeInitHalf(s string) half {
-	return half{
-		symbol: s,
-		def:    false, // add later
-	}
-}
-
-func makeInit(i, r string) pattern {
-	p := pattern{
-		i: makeInitHalf(i),
-		r: makeInitHalf(r),
-	}
-	// pre-message
-	if i == "K" {
-		p.i.s = true
-		fmt.Printf("  -> s\n")
-	}
-	if r == "K" {
-		p.r.s = true
-		fmt.Printf("  <- s\n")
-	}
-	if i == "K" || r == "K" {
-		fmt.Printf("  ...\n")
-	}
-	return p
-}
-
 func pr(first, initWrite bool, s string) bool {
 	if first {
 		switch initWrite {
@@ -114,8 +84,20 @@ func makePattern(i, r string, id, rd bool) {
 		rds = "1"
 	}
 	fmt.Printf("%s%s%s%s:\n", i, ids, r, rds)
-	p := makeInit(i, r)
-	// direction
+	p := pattern{i: half{}, r: half{}}
+	// pre-message handling
+	if i == "K" {
+		p.i.s = true
+		fmt.Printf("  -> s\n")
+	}
+	if r == "K" {
+		p.r.s = true
+		fmt.Printf("  <- s\n")
+	}
+	if i == "K" || r == "K" {
+		fmt.Printf("  ...\n")
+	}
+	// direction, start with initiator writes
 	initWrite := true
 	line := 0
 	var didLine bool
@@ -157,6 +139,7 @@ func makePattern(i, r string, id, rd bool) {
 					first = pr(first, initWrite, "s")
 					p.i.s = true
 					didSomething = true
+				// send s if X, but not on first line
 				case i == "X" && !p.i.s && line == 1:
 					first = pr(first, initWrite, "s")
 					p.i.s = true
@@ -196,6 +179,7 @@ func makePattern(i, r string, id, rd bool) {
 					first = pr(first, initWrite, "ss")
 					p.ss = true
 					didSomething = true
+				// send s if X as soon as possible
 				case r == "X" && !p.r.s:
 					first = pr(first, initWrite, "s")
 					p.r.s = true
