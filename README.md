@@ -7,3 +7,9 @@ See [mailing list discussion for rationale](https://moderncrypto.org/mail-archiv
 
 Currently it adds `ss` tokens where possible, unlike the standard that omits them in most cases. Otherwise
 the patterns are identical.
+
+To run
+```
+go get github.com/justincormack/noise-gen
+```
+Then the `noise-gen` should be in `~/go/bin`.
