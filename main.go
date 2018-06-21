@@ -44,19 +44,38 @@ func main() {
 	}
 }
 
-func pr(first, initWrite bool, s string) bool {
-	if first {
-		switch initWrite {
-		case true:
-			fmt.Print("  -> ")
-		case false:
-			fmt.Print("  <- ")
-		}
+type printer struct {
+	pos int
+}
+
+func (pr *printer) PrintI(s string) {
+	if pr.pos == 0 {
+		fmt.Print("  -> ")
 	} else {
 		fmt.Print(", ")
 	}
 	fmt.Print(s)
-	return false
+	pr.pos++
+}
+
+func (pr *printer) PrintR(s string) {
+	if pr.pos == 0 {
+		fmt.Print("  <- ")
+	} else {
+		fmt.Print(", ")
+	}
+	fmt.Print(s)
+	pr.pos++
+}
+
+func (pr *printer) Println() {
+	fmt.Println()
+	pr.pos = 0
+}
+
+func (pr *printer) EndPremessage() {
+	fmt.Println("  ...")
+	pr.pos = 0
 }
 
 func prDefer(d bool) string {
@@ -66,24 +85,32 @@ func prDefer(d bool) string {
 	return ""
 }
 
+func printHeader(it, rt string, id, rd bool) {
+	fmt.Println(it + prDefer(id) + rt + prDefer(rd) + ":")
+}
+
 func makePattern(it, rt string, id, rd bool) {
 	// have these DH taken place?
 	var ee, es, se, ss bool
 	// have initiator and responder sent e, s?
 	var ie, is, re, rs bool
 
-	fmt.Println(it + prDefer(id) + rt + prDefer(rd) + ":")
+	pr := new(printer)
+
+	printHeader(it, rt, id, rd)
 	// pre-message handling
 	if it == "K" {
 		is = true
-		fmt.Println("  -> s")
+		pr.PrintI("s")
+		pr.Println()
 	}
 	if rt == "K" {
 		rs = true
-		fmt.Println("  <- s")
+		pr.PrintR("s")
+		pr.Println()
 	}
 	if it == "K" || rt == "K" {
-		fmt.Println("  ...")
+		pr.EndPremessage()
 	}
 	// direction, start with initiator writes
 	initWrite := true
@@ -92,38 +119,37 @@ func makePattern(it, rt string, id, rd bool) {
 	var clearID, clearRD bool
 	for {
 		var didNothing bool
-		var first = true
 		for {
 			switch initWrite {
 			case true: // initiator writes
 				switch {
 				// send e if not sent
 				case !ie:
-					first = pr(first, initWrite, "e")
+					pr.PrintI("e")
 					ie = true
 				// do ee as soon as possible
 				case ie && re && !ee:
-					first = pr(first, initWrite, "ee")
+					pr.PrintI("ee")
 					ee = true
 				// do se as soon as possible if not deferred
 				case is && re && !se && !id:
-					first = pr(first, initWrite, "se")
+					pr.PrintI("se")
 					se = true
 				// do es as soon as possible if not deferred
 				case ie && rs && !es && !rd:
-					first = pr(first, initWrite, "es")
+					pr.PrintI("es")
 					es = true
 				// do ss as soon as possible, if not done ee or se but have done se
 				case is && rs && !ss && !se && !ee && es:
-					first = pr(first, initWrite, "ss")
+					pr.PrintI("ss")
 					ss = true
 				// send s if I as soon as possible
 				case it == "I" && !is:
-					first = pr(first, initWrite, "s")
+					pr.PrintI("s")
 					is = true
 				// send s if X, but not on first line
 				case it == "X" && !is && line == 1:
-					first = pr(first, initWrite, "s")
+					pr.PrintI("s")
 					is = true
 				default:
 					didNothing = true
@@ -139,27 +165,27 @@ func makePattern(it, rt string, id, rd bool) {
 				switch {
 				// send e if not sent
 				case !re:
-					first = pr(first, initWrite, "e")
+					pr.PrintR("e")
 					re = true
 				// do ee as soon as possible
 				case ie && re && !ee:
-					first = pr(first, initWrite, "ee")
+					pr.PrintR("ee")
 					ee = true
 				// do se as soon as possible if not deferred
 				case re && is && !se && !id:
-					first = pr(first, initWrite, "se")
+					pr.PrintR("se")
 					se = true
 				// do es as soon as possible if not deferred
 				case rs && ie && !es && !rd:
-					first = pr(first, initWrite, "es")
+					pr.PrintR("es")
 					es = true
 				// do ss as soon as possible if not done ee or es but have done se
 				case is && rs && !ss && !es && !ee && se:
-					first = pr(first, initWrite, "ss")
+					pr.PrintR("ss")
 					ss = true
 				// send s if X as soon as possible
 				case rt == "X" && !rs:
-					first = pr(first, initWrite, "s")
+					pr.PrintR("s")
 					rs = true
 				default:
 					didNothing = true
@@ -173,7 +199,7 @@ func makePattern(it, rt string, id, rd bool) {
 				}
 			}
 			if didNothing {
-				fmt.Println()
+				pr.Println()
 				break
 			}
 			didLine = true
