@@ -11,7 +11,7 @@ func main() {
 	for _, i := range symbols {
 		makePattern(i, "", false, false)
 	}
-
+	fmt.Println()
 	// the standard patterns
 	for _, i := range symbols {
 		for _, r := range symbols {
