@@ -153,7 +153,7 @@ func makePattern(it, rt string, id, rd bool) {
 					pr.PrintI("s")
 					is = true
 				// send s if X, but not on first line
-				case it == "X" && !is && line == 1:
+				case it == "X" && !is && line != 0:
 					pr.PrintI("s")
 					is = true
 				default:
@@ -218,9 +218,7 @@ func makePattern(it, rt string, id, rd bool) {
 		if clearRD {
 			rd = false
 		}
-		if initWrite {
 			line++
-		}
 		if !didLine {
 			break
 		}
