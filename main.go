@@ -144,8 +144,8 @@ func makePattern(it, rt string, id, rd bool) {
 				case ie && rs && !es && !rd:
 					pr.PrintI("es")
 					es = true
-				// do ss as soon as possible, if not done ee or se but have done se
-				case is && rs && !ss && !se && !ee && es:
+				// do ss if we cannot send se on first line
+				case is && rs && !ss && es && !se && line == 0:
 					pr.PrintI("ss")
 					ss = true
 				// send s if I or one way X as soon as possible
@@ -184,10 +184,6 @@ func makePattern(it, rt string, id, rd bool) {
 				case rs && ie && !es && !rd:
 					pr.PrintR("es")
 					es = true
-				// do ss as soon as possible if not done ee or es but have done se
-				case is && rs && !ss && !es && !ee && se:
-					pr.PrintR("ss")
-					ss = true
 				// send s if X as soon as possible
 				case rt == "X" && !rs:
 					pr.PrintR("s")
