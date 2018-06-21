@@ -177,11 +177,11 @@ func makePattern(it, rt string, id, rd bool) {
 					pr.PrintR("ee")
 					ee = true
 				// do se as soon as possible if not deferred
-				case re && is && !se && !id:
+				case is && re && !se && !id:
 					pr.PrintR("se")
 					se = true
 				// do es as soon as possible if not deferred
-				case rs && ie && !es && !rd:
+				case ie && rs && !es && !rd:
 					pr.PrintR("es")
 					es = true
 				// send s if X as soon as possible
