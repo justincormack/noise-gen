@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-var symbols = []string{"N", "X", "K"}
+var symbols = []string{"N", "K", "X"}
 
 func main() {
 	// the one way patterns
