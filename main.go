@@ -7,7 +7,12 @@ import (
 var symbols = []string{"N", "X", "K"}
 
 func main() {
-	// first the standard patterns
+	// the one way patterns
+	for _, i := range symbols {
+		makePattern(i, "", false, false)
+	}
+
+	// the standard patterns
 	for _, i := range symbols {
 		for _, r := range symbols {
 			makePattern(i, r, false, false)
@@ -104,12 +109,12 @@ func makePattern(it, rt string, id, rd bool) {
 		pr.PrintI("s")
 		pr.Println()
 	}
-	if rt == "K" {
+	if rt == "K" || rt == "" {
 		rs = true
 		pr.PrintR("s")
 		pr.Println()
 	}
-	if it == "K" || rt == "K" {
+	if it == "K" || rt == "K" || rt == "" {
 		pr.EndPremessage()
 	}
 	// direction, start with initiator writes
@@ -143,8 +148,8 @@ func makePattern(it, rt string, id, rd bool) {
 				case is && rs && !ss && !se && !ee && es:
 					pr.PrintI("ss")
 					ss = true
-				// send s if I as soon as possible
-				case it == "I" && !is:
+				// send s if I or one way X as soon as possible
+				case (it == "I" || (it == "X" && rt == ""))  && !is:
 					pr.PrintI("s")
 					is = true
 				// send s if X, but not on first line
@@ -203,6 +208,11 @@ func makePattern(it, rt string, id, rd bool) {
 				break
 			}
 			didLine = true
+		}
+		// finish if one way pattern
+		if rt == "" {
+			pr.Println()
+			break
 		}
 		initWrite = !initWrite
 		// handle clearing deferral
