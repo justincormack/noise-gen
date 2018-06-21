@@ -149,7 +149,7 @@ func makePattern(it, rt string, id, rd bool) {
 					pr.PrintI("ss")
 					ss = true
 				// send s if I or one way X as soon as possible
-				case (it == "I" || (it == "X" && rt == ""))  && !is:
+				case (it == "I" || (it == "X" && rt == "")) && !is:
 					pr.PrintI("s")
 					is = true
 				// send s if X, but not on first line
