@@ -5,9 +5,6 @@ It is based on Revision 34 with the deferred patterns.
 
 See [mailing list discussion for rationale](https://moderncrypto.org/mail-archive/noise/2018/001706.html).
 
-Currently it adds `ss` tokens in the deferred patterns too, unlike the draft that currently omits them.
-Otherwise the patterns are identical.
-
 To run
 ```
 go get github.com/justincormack/noise-gen
