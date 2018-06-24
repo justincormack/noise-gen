@@ -94,6 +94,7 @@ func printHeader(it, rt string, id, rd bool) {
 	fmt.Println(it + prDefer(id) + rt + prDefer(rd) + ":")
 }
 
+// makePattern outputs a single pattern based on the two tokens and two booleans for deferral
 func makePattern(it, rt string, id, rd bool) {
 	// have these DH taken place?
 	var ee, es, se, ss bool
@@ -119,7 +120,7 @@ func makePattern(it, rt string, id, rd bool) {
 	}
 	// direction, start with initiator writes
 	initWrite := true
-	line := 0
+	first := true
 	var didLine bool
 	var clearID, clearRD bool
 	for {
@@ -145,7 +146,7 @@ func makePattern(it, rt string, id, rd bool) {
 					pr.PrintI("es")
 					es = true
 				// do ss if we cannot send se on first line
-				case is && rs && !ss && es && !se && line == 0:
+				case is && rs && !ss && es && !se && first:
 					pr.PrintI("ss")
 					ss = true
 				// send s if I or one way X as soon as possible
@@ -153,7 +154,7 @@ func makePattern(it, rt string, id, rd bool) {
 					pr.PrintI("s")
 					is = true
 				// send s if X, but not on first line
-				case it == "X" && !is && line != 0:
+				case it == "X" && !is && !first:
 					pr.PrintI("s")
 					is = true
 				default:
@@ -218,7 +219,7 @@ func makePattern(it, rt string, id, rd bool) {
 		if clearRD {
 			rd = false
 		}
-			line++
+		first = false
 		if !didLine {
 			break
 		}
