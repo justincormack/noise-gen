@@ -17,10 +17,12 @@ func main() {
 		oneway, standard, deferred = true, true, true
 	}
 
+	pr := new(printer)
+
 	// the one way patterns
 	if oneway {
 		for _, i := range symbols {
-			makePattern(i, "", false, false)
+			makePattern(pr, i, "", false, false)
 		}
 		if standard || deferred {
 			fmt.Println()
@@ -30,10 +32,10 @@ func main() {
 		// the standard patterns
 		for _, i := range symbols {
 			for _, r := range symbols {
-				makePattern(i, r, false, false)
+				makePattern(pr, i, r, false, false)
 				// also make the equivalent I patterns from X
 				if i == "X" {
-					makePattern("I", r, false, false)
+					makePattern(pr, "I", r, false, false)
 				}
 			}
 		}
@@ -49,19 +51,19 @@ func main() {
 					continue
 				}
 				if i != "N" {
-					makePattern(i, r, true, false)
+					makePattern(pr, i, r, true, false)
 				}
 				if r != "N" {
-					makePattern(i, r, false, true)
+					makePattern(pr, i, r, false, true)
 				}
 				if i != "N" && r != "N" {
-					makePattern(i, r, true, true)
+					makePattern(pr, i, r, true, true)
 				}
 				if i == "X" {
-					makePattern("I", r, true, false)
+					makePattern(pr, "I", r, true, false)
 					if r != "N" {
-						makePattern("I", r, false, true)
-						makePattern("I", r, true, true)
+						makePattern(pr, "I", r, false, true)
+						makePattern(pr, "I", r, true, true)
 					}
 				}
 			}
@@ -103,6 +105,11 @@ func (pr *printer) EndPremessage() {
 	pr.pos = 0
 }
 
+func (pr *printer) PrintHeader(it, rt string, id, rd bool) {
+	fmt.Println(it + prDefer(id) + rt + prDefer(rd) + ":")
+	pr.pos = 0
+}
+
 func prDefer(d bool) string {
 	if d {
 		return "1"
@@ -110,20 +117,14 @@ func prDefer(d bool) string {
 	return ""
 }
 
-func printHeader(it, rt string, id, rd bool) {
-	fmt.Println(it + prDefer(id) + rt + prDefer(rd) + ":")
-}
-
 // makePattern outputs a single pattern based on the two tokens and two booleans for deferral
-func makePattern(it, rt string, id, rd bool) {
+func makePattern(pr *printer, it, rt string, id, rd bool) {
 	// have these DH taken place?
 	var ee, es, se, ss bool
 	// have initiator and responder sent e, s?
 	var ie, is, re, rs bool
 
-	pr := new(printer)
-
-	printHeader(it, rt, id, rd)
+	pr.PrintHeader(it, rt, id, rd)
 	// pre-message handling
 	if it == "K" {
 		is = true
