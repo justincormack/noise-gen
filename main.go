@@ -1,48 +1,68 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 )
 
 var symbols = []string{"N", "K", "X"}
 
 func main() {
-	// the one way patterns
-	for _, i := range symbols {
-		makePattern(i, "", false, false)
+	var oneway, standard, deferred bool
+	flag.BoolVar(&oneway, "oneway", false, "Print the one way patterns")
+	flag.BoolVar(&standard, "standard", false, "Print the standard two way patterns")
+	flag.BoolVar(&deferred, "deferred", false, "Print the deferred two way patterns")
+	flag.Parse()
+	if !oneway && !standard && !deferred {
+		oneway, standard, deferred = true, true, true
 	}
-	fmt.Println()
-	// the standard patterns
-	for _, i := range symbols {
-		for _, r := range symbols {
-			makePattern(i, r, false, false)
-			// also make the equivalent I patterns from X
-			if i == "X" {
-				makePattern("I", r, false, false)
-			}
+
+	// the one way patterns
+	if oneway {
+		for _, i := range symbols {
+			makePattern(i, "", false, false)
+		}
+		if standard || deferred {
+			fmt.Println()
 		}
 	}
-	fmt.Println()
-	// then deferred patterns
-	for _, i := range symbols {
-		for _, r := range symbols {
-			if i == "N" && r == "N" {
-				continue
+	if standard {
+		// the standard patterns
+		for _, i := range symbols {
+			for _, r := range symbols {
+				makePattern(i, r, false, false)
+				// also make the equivalent I patterns from X
+				if i == "X" {
+					makePattern("I", r, false, false)
+				}
 			}
-			if i != "N" {
-				makePattern(i, r, true, false)
-			}
-			if r != "N" {
-				makePattern(i, r, false, true)
-			}
-			if i != "N" && r != "N" {
-				makePattern(i, r, true, true)
-			}
-			if i == "X" {
-				makePattern("I", r, true, false)
+		}
+		if deferred {
+			fmt.Println()
+		}
+	}
+	if deferred {
+		// the deferred patterns
+		for _, i := range symbols {
+			for _, r := range symbols {
+				if i == "N" && r == "N" {
+					continue
+				}
+				if i != "N" {
+					makePattern(i, r, true, false)
+				}
 				if r != "N" {
-					makePattern("I", r, false, true)
-					makePattern("I", r, true, true)
+					makePattern(i, r, false, true)
+				}
+				if i != "N" && r != "N" {
+					makePattern(i, r, true, true)
+				}
+				if i == "X" {
+					makePattern("I", r, true, false)
+					if r != "N" {
+						makePattern("I", r, false, true)
+						makePattern("I", r, true, true)
+					}
 				}
 			}
 		}
