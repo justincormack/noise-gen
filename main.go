@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 )
 
 var symbols = []string{"N", "K", "X"}
@@ -17,7 +16,8 @@ func main() {
 		oneway, standard, deferred = true, true, true
 	}
 
-	pr := new(printer)
+	var pr printer
+	pr = new(pretty)
 
 	// the one way patterns
 	if oneway {
@@ -25,7 +25,7 @@ func main() {
 			makePattern(pr, i, "", false, false)
 		}
 		if standard || deferred {
-			fmt.Println()
+			pr.Println()
 		}
 	}
 	if standard {
@@ -40,7 +40,7 @@ func main() {
 			}
 		}
 		if deferred {
-			fmt.Println()
+			pr.Println()
 		}
 	}
 	if deferred {
@@ -71,54 +71,8 @@ func main() {
 	}
 }
 
-type printer struct {
-	pos int
-}
-
-func (pr *printer) PrintI(s string) {
-	if pr.pos == 0 {
-		fmt.Print("  -> ")
-	} else {
-		fmt.Print(", ")
-	}
-	fmt.Print(s)
-	pr.pos++
-}
-
-func (pr *printer) PrintR(s string) {
-	if pr.pos == 0 {
-		fmt.Print("  <- ")
-	} else {
-		fmt.Print(", ")
-	}
-	fmt.Print(s)
-	pr.pos++
-}
-
-func (pr *printer) Println() {
-	fmt.Println()
-	pr.pos = 0
-}
-
-func (pr *printer) EndPremessage() {
-	fmt.Println("  ...")
-	pr.pos = 0
-}
-
-func (pr *printer) PrintHeader(it, rt string, id, rd bool) {
-	fmt.Println(it + prDefer(id) + rt + prDefer(rd) + ":")
-	pr.pos = 0
-}
-
-func prDefer(d bool) string {
-	if d {
-		return "1"
-	}
-	return ""
-}
-
 // makePattern outputs a single pattern based on the two tokens and two booleans for deferral
-func makePattern(pr *printer, it, rt string, id, rd bool) {
+func makePattern(pr printer, it, rt string, id, rd bool) {
 	// have these DH taken place?
 	var ee, es, se, ss bool
 	// have initiator and responder sent e, s?
