@@ -120,8 +120,8 @@ func makePattern(pr printer, it, rt string, id, rd bool) {
 				case ie && rs && !es && !rd:
 					pr.PrintI("es")
 					es = true
-				// do ss if we cannot send se on first line
-				case is && rs && !ss && es && !se && first:
+				// do ss if we cannot send se on first line and not deferred
+				case is && rs && !ss && es && !se && !id && first:
 					pr.PrintI("ss")
 					ss = true
 				// send s if I or one way X as soon as possible
