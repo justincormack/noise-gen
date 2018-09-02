@@ -9,7 +9,7 @@ type printer interface {
 	PrintR(s string)
 	Println()
 	EndPremessage()
-	PrintHeader(it, rt string, id, rd bool)
+	PrintHeader(it, rt string, id, rd bool, noss bool, ss bool)
 }
 
 type pretty struct {
@@ -46,8 +46,15 @@ func (pr *pretty) EndPremessage() {
 	pr.pos = 0
 }
 
-func (pr *pretty) PrintHeader(it, rt string, id, rd bool) {
-	fmt.Println(it + prDefer(id) + rt + prDefer(rd) + ":")
+func (pr *pretty) PrintHeader(it, rt string, id, rd bool, noss bool, ss bool) {
+	var mod string
+	if noss {
+		mod = mod + "noss"
+	}
+	if ss {
+		mod = mod + "ss"
+	}
+	fmt.Println(it + prDefer(id) + rt + prDefer(rd) + mod + ":")
 	pr.pos = 0
 }
 

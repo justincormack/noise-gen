@@ -4,13 +4,15 @@ import (
 	"flag"
 )
 
-var symbols = []string{"N", "K", "X"}
+var symbols = []string{"K", "X"}
 
 func main() {
-	var oneway, standard, deferred bool
+	var oneway, standard, deferred, noss, ss bool
 	flag.BoolVar(&oneway, "oneway", false, "Print the one way patterns")
 	flag.BoolVar(&standard, "standard", false, "Print the standard two way patterns")
 	flag.BoolVar(&deferred, "deferred", false, "Print the deferred two way patterns")
+	flag.BoolVar(&noss, "noss", false, "Print the noss patterns")
+	flag.BoolVar(&ss, "ss", false, "Print the ss patterns")
 	flag.Parse()
 	if !oneway && !standard && !deferred {
 		oneway, standard, deferred = true, true, true
@@ -22,7 +24,7 @@ func main() {
 	// the one way patterns
 	if oneway {
 		for _, i := range symbols {
-			makePattern(pr, i, "", false, false)
+			makePattern(pr, i, "", false, false, false, false)
 		}
 		if standard || deferred {
 			pr.Println()
@@ -32,10 +34,10 @@ func main() {
 		// the standard patterns
 		for _, i := range symbols {
 			for _, r := range symbols {
-				makePattern(pr, i, r, false, false)
+				makePattern(pr, i, r, false, false, false, false)
 				// also make the equivalent I patterns from X
 				if i == "X" {
-					makePattern(pr, "I", r, false, false)
+					makePattern(pr, "I", r, false, false, false, false)
 				}
 			}
 		}
@@ -51,20 +53,58 @@ func main() {
 					continue
 				}
 				if i != "N" {
-					makePattern(pr, i, r, true, false)
+					makePattern(pr, i, r, true, false, false, false)
 				}
 				if r != "N" {
-					makePattern(pr, i, r, false, true)
+					makePattern(pr, i, r, false, true, false, false)
 				}
 				if i != "N" && r != "N" {
-					makePattern(pr, i, r, true, true)
+					makePattern(pr, i, r, true, true, false, false)
 				}
 				if i == "X" {
-					makePattern(pr, "I", r, true, false)
+					makePattern(pr, "I", r, true, false, false, false)
 					if r != "N" {
-						makePattern(pr, "I", r, false, true)
-						makePattern(pr, "I", r, true, true)
+						makePattern(pr, "I", r, false, true, false, false)
+						makePattern(pr, "I", r, true, true, false, false)
 					}
+				}
+			}
+		}
+	}
+	if noss && oneway {
+		makePattern(pr, "K", "", false, false, true, false)
+		makePattern(pr, "X", "", false, false, true, false)
+	}
+	if noss && standard {
+		makePattern(pr, "K", "K", false, false, true, false)
+		makePattern(pr, "I", "K", false, false, true, false)
+	}
+	if ss && standard {
+		for _, i := range symbols {
+			for _, r := range symbols {
+				if i == "N" || r == "N" {
+					continue
+				}
+				makePattern(pr, i, r, false, false, false, true)
+				if i == "X" {
+					makePattern(pr, "I", r, false, false, false, true)
+				}
+			}
+		}
+	}
+	if ss && deferred {
+		for _, i := range symbols {
+			for _, r := range symbols {
+				if i == "N" || r == "N" {
+					continue
+				}
+				makePattern(pr, i, r, true, false, false, true)
+				makePattern(pr, i, r, false, true, false, true)
+				makePattern(pr, i, r, true, true, false, true)
+				if i == "X" {
+					makePattern(pr, "I", r, true, false, false, true)
+					makePattern(pr, "I", r, false, true, false, true)
+					makePattern(pr, "I", r, true, true, false, true)
 				}
 			}
 		}
@@ -72,13 +112,13 @@ func main() {
 }
 
 // makePattern outputs a single pattern based on the two tokens and two booleans for deferral
-func makePattern(pr printer, it, rt string, id, rd bool) {
+func makePattern(pr printer, it, rt string, id, rd bool, noss bool, ssmod bool) {
 	// have these DH taken place?
 	var ee, es, se, ss bool
 	// have initiator and responder sent e, s?
 	var ie, is, re, rs bool
 
-	pr.PrintHeader(it, rt, id, rd)
+	pr.PrintHeader(it, rt, id, rd, noss, ssmod)
 	// pre-message handling
 	if it == "K" {
 		is = true
@@ -121,7 +161,11 @@ func makePattern(pr printer, it, rt string, id, rd bool) {
 					pr.PrintI("es")
 					es = true
 				// do ss if we cannot send se on first line and not deferred
-				case is && rs && !ss && es && !se && !id && first:
+				case !noss && !ssmod && is && rs && !ss && es && !se && !id && first:
+					pr.PrintI("ss")
+					ss = true
+				// for ss modifer, do ss last after se, es
+				case ssmod && !ss && is && rs && !ss && es && se:
 					pr.PrintI("ss")
 					ss = true
 				// send s if I or one way X as soon as possible
@@ -160,6 +204,10 @@ func makePattern(pr printer, it, rt string, id, rd bool) {
 				case ie && rs && !es && !rd:
 					pr.PrintR("es")
 					es = true
+				// send ss if have ss modifier
+				case ssmod && is && rs && !ss && se && es:
+					pr.PrintI("ss")
+					ss = true
 				// send s if X as soon as possible
 				case rt == "X" && !rs:
 					pr.PrintR("s")
